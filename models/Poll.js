@@ -1,9 +1,9 @@
 const { DataTypes } = require("sequelize")
 const pollDb = require("../db")
 
-const Poll = pollDb.define("polls" , {
+const Poll = pollDb.define("Poll", {
     title: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false
     },
 
