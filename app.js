@@ -3,9 +3,10 @@ const morgan = require("morgan")
 const cors = require("cors")
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = 3000
 
 const pollDb = require("./db")
+const {Poll, Option, Vote} = require("./models")
 
 app.use(cors())
 app.use(morgan("dev"))
@@ -19,6 +20,9 @@ async function startServer() {
     try {
         await pollDb.authenticate()
         console.log("DATABASE connected")
+
+        await pollDb.sync()
+        console.log("Models synced")
 
         app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`)
