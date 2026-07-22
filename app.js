@@ -8,9 +8,13 @@ const PORT = process.env.PORT || 3000
 const pollDb = require("./db")
 require("./models")
 
+const pollsRouter = require("./routes/polls")
+
+
 app.use(cors())
 app.use(morgan("dev"))
 app.use(express.json())
+app.use("/polls", pollsRouter)
 
 app.get("/health", (req, res) => {
     res.json({ status: "ok" })
@@ -32,5 +36,10 @@ async function startServer() {
     }
 
 }
+
+app.use((error, req, res, next) => {
+    console.error(error)
+    res.status(500).json({error: "Something went wrong."})
+})
 
 startServer()
