@@ -1,5 +1,5 @@
 const express = require("express")
-const { Poll , Option } = require("../models")
+const { Poll , Option , Vote} = require("../models")
 
 const router = express.Router()
 
@@ -7,6 +7,36 @@ router.get("/", async (req, res, next) => {
     try {
         const allPolls = await Poll.findAll({order: [['createdAt', 'DESC']]})
         res.status(200).json(allPolls)
+    } catch (error) {
+        next(error)
+    }
+})
+
+router.get("/:id", async (req, res, next) => {
+    try {
+        const pollId = Number(req.params.id)
+        const singlePoll = await Poll.findByPk(pollId, {
+            include: [
+                {
+                    model: Option,
+                    include: [Vote]
+                }
+            ]
+        })
+
+        if(!singlePoll){
+            return res.status(404).json({error: "Poll not found!"})
+        }
+
+        const pollData = singlePoll.toJSON()
+
+        for(const option of pollData.Options) {
+            option.voteCount = option.Votes.length
+        }
+
+        pollData.Options.sort((a, b) => b.voteCount - a.voteCount)
+
+        res.status(200).json(pollData)
     } catch (error) {
         next(error)
     }
