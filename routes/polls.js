@@ -3,6 +3,15 @@ const { Poll , Option } = require("../models")
 
 const router = express.Router()
 
+router.get("/", async (req, res, next) => {
+    try {
+        const allPolls = await Poll.findAll({order: [['createdAt', 'DESC']]})
+        res.status(200).json(allPolls)
+    } catch (error) {
+        next(error)
+    }
+})
+
 router.post("/" , async (req, res, next) => {
     const {title, description, options} = req.body
 
