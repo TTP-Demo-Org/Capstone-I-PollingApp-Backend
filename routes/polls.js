@@ -95,8 +95,8 @@ router.get("/:id", async (req, res, next) => {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-    pollData.Options.sort((a, b) => b.voteCount - a.voteCount);
-
+    pollData.Options.sort((a, b) => a.id - b.id);
+    
     res.status(200).json(pollData);
   } catch (error) {
     next(error);
