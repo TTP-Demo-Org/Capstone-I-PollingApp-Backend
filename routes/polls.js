@@ -31,6 +31,12 @@ router.post("/:id/vote", async (req, res, next) => {
       });
     }
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if(!emailPattern.test(email)){
+      return res.status(400).json({error: "Please enter a valid email address."})
+    }
+
     const option = await Option.findOne({
       where: {
         id: optionId,
