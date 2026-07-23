@@ -12,40 +12,64 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/:id/vote" , async (req,res,next) => {
-    try {
-        const pollId = Number(req.params.id)
-        const { optionId } = req.body
+router.post("/:id/vote", async (req, res, next) => {
+  try {
+    const pollId = Number(req.params.id);
+    const { optionId } = req.body;
 
-        if (!optionId) {
-            return res.status(400).json({error: "Invalid Option!"})
-        }
+    const email = req.body.email?.trim().toLowerCase();
 
-        const option = await Option.findOne({
-            where: {
-                id: optionId,
-                pollId: pollId
-            }
-        })
-
-        if (!option) {
-            return res.status(404).json({error: "Option not found for this poll!"})
-        }
-
-        const vote = await Vote.create({
-            optionId : optionId
-        })
-
-        return res.status(201).json(vote)
-
-    } catch (error) {
-        next(error)
+    if (!optionId) {
+      return res.status(400).json({
+        error: "Please select an option.",
+      });
     }
-})
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Please enter your email.",
+      });
+    }
+
+    const option = await Option.findOne({
+      where: {
+        id: optionId,
+        pollId: pollId,
+      },
+    });
+
+    if (!option) {
+      return res.status(404).json({ error: "Option not found for this poll!" });
+    }
+
+    const existingVote = await Vote.findOne({
+      where: {
+        email,
+        pollId,
+      },
+    });
+
+    if (existingVote) {
+      return res.status(409).json({
+        error: "This email has already voted in this poll.",
+      });
+    }
+
+    const vote = await Vote.create({
+      optionId,
+      email,
+      pollId,
+    });
+
+    return res.status(201).json(vote);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get("/:id", async (req, res, next) => {
   try {
-    const pollId = Number(req.params.id)
+    const pollId = Number(req.params.id);
     const singlePoll = await Poll.findByPk(pollId, {
       include: [
         {
